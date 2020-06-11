@@ -4,6 +4,12 @@ body {
     background-image: url(images/background.jpeg);
 }
 
+#name {
+    padding: 10% 0;
+    text-align: center;
+    font-size: 100px;
+}
+
 h1 {
     text-align: center;
 }
@@ -35,7 +41,6 @@ img {
     padding: 0;
     overflow: hidden;
     font-family: "Courier New", Courier, monospace;
-    background-color: skyblue;
 }
 
 #navBar li {
@@ -47,4 +52,14 @@ img {
     padding: 8px;
     color: white;
     text-decoration: none;
+}
+
+#navBar li a.active {
+    background-color: lightblue;
+    color: white;
+}
+
+#navBar li a:hover:not(.active) {
+  background-color: skyblue;
+  color: white;
 }
