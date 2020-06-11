@@ -1,6 +1,7 @@
 body {
     max-width: 70%;
     margin: auto;
+    background-image: url(images/background.jpeg);
 }
 
 h1 {
@@ -26,4 +27,24 @@ img {
 
 #fact-container {
     margin-top: 20px;
+}
+
+#navBar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: "Courier New", Courier, monospace;
+    background-color: skyblue;
+}
+
+#navBar li {
+    float: left;
+}
+
+#navBar li a{
+    display: block;
+    padding: 8px;
+    color: white;
+    text-decoration: none;
 }
