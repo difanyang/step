@@ -7,12 +7,27 @@
     <script src="script.js"></script>
   </head>
   <body>
-    <div id="content">
-      <h1>My Portfolio</h1>
-      <p>This is my portfolio.</p>
-      <p>Click here to get a random message:</p>
-      <button onclick="addRandomGreeting()">Hello</button>
-      <div id="greeting-container"></div>
+    <ul id="navBar">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="images.html">Image Gallery</a></li>
+    </ul>
+    <h1>Difan Yang</h1>
+    <img src="/images/selfpic.jpeg" alt="A photo of me holding a huge bread.">
+    
+    <div class="content">
+      <h2>About</h2>
+      <p>Difan Yang is a junior at Vanderbilt University majoring in Computer 
+          Engineering. She has been a Research Assistant at Institute for 
+          Software Integrated Systems at Vanderbilt University working on 
+          features of Cyber-Physical Systems Virtual Organization website.
+          She is currently working as an intern at Google LLC.</p>
+        <a href="https://www.linkedin.com/in/%E8%BF%AA%E5%87%A1-%E9%98%B3-ba6374193/">
+        Linkedin</a>
+        <a href="https://github.com/difanyang">GitHub</a>
+      <p>More random facts about me:</p>
+      <button onclick="addRandomFacts()">Click to get the fact</button>
+      <div id="fact-container"></div>
     </div>
   </body>
 </html>
