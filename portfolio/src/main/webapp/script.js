@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Adds a random fact about myself to the page.
- */
+/* Adds a random fact about myself to the page. */
 function addRandomFacts() {
   const facts =
       ['I do not drink boba tea simply because it is boring.', 
