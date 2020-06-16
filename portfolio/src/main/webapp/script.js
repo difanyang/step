@@ -26,3 +26,9 @@ function addRandomFacts() {
   const factContainer = document.getElementById('fact-container');
   factContainer.innerText = fact;
 }
+
+/** Fetches the content in DataServlet and display on Home page */
+function getData() {
+  fetch('/data').then(response => response.text()).then((data) => 
+  {document.getElementById("data-container").innerText = data;});
+}
