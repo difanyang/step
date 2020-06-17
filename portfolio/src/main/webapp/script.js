@@ -29,8 +29,7 @@ function addRandomFacts() {
 
 /** Fetches comments from the servers and adds them to the DOM. */
 function getData() {
-  fetch('/data').then(response => response.json()).then((data) => 
-  {
+  fetch('/data').then(response => response.json()).then((data) => {
     const arrayListElement = document.getElementById('data-container');
     arrayListElement.innerHTML = '';
     arrayListElement.appendChild(createTextElement(data));

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
+  /** Initially empty ArrayList. Later user comments will be stored as elements */
   static ArrayList<String> stringList = new ArrayList<String>();
 
   @Override
