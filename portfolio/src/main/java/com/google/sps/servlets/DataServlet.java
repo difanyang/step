@@ -26,20 +26,19 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
   /** Initially empty ArrayList. Later user comments will be stored as elements */
-  static ArrayList<String> stringList = new ArrayList<String>();
+  private static ArrayList<String> stringList = new ArrayList<String>();
+  static final Gson GSON = new Gson();
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    Gson gson = new Gson();
-    String json = gson.toJson(stringList);
     response.setContentType("application/json;");
-    response.getWriter().println(json);
+    response.getWriter().println(GSON.toJson(stringList));
   }
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form
-    String text = getParameter(request, "comment", "");
+    String text = getParameterWithDefault(request, "comment", "");
     stringList.add(text);
     response.sendRedirect("index.html");
   }
@@ -48,7 +47,7 @@ public class DataServlet extends HttpServlet {
    * @return the request parameter, or the default value if the parameter
    *         was not specified by the client
    */
-  private String getParameter(HttpServletRequest request, String name, String defaultValue) {
+  private String getParameterWithDefault(HttpServletRequest request, String name, String defaultValue) {
     String value = request.getParameter(name);
     if (value == null) {
       return defaultValue;
