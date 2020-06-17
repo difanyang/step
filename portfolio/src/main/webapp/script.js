@@ -27,8 +27,19 @@ function addRandomFacts() {
   factContainer.innerText = fact;
 }
 
-/** Fetches the content in DataServlet and display on Home page */
+/** Fetches comments from the servers and adds them to the DOM. */
 function getData() {
-  fetch('/data').then(response => response.text()).then((data) => 
-  {document.getElementById("data-container").innerText = data;});
+  fetch('/data').then(response => response.json()).then((data) => 
+  {
+    const arrayListElement = document.getElementById('data-container');
+    arrayListElement.innerHTML = '';
+    arrayListElement.appendChild(createListElement(data));
+  });
+}
+
+/** Creates an <li> element containing text. */
+function createListElement(text) {
+  const liElement = document.createElement('li');
+  liElement.innerText = text;
+  return liElement;
 }
