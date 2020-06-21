@@ -20,6 +20,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.FetchOptions;
 import java.io.IOException;
 import java.util.ArrayList;
 import com.google.gson.Gson;
@@ -33,35 +34,32 @@ import javax.servlet.http.HttpServletResponse;
 public class DataServlet extends HttpServlet {
   private static final Gson GSON = new Gson();
   private static final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-  private static int numComment;
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     Query query = new Query("Comment");
     PreparedQuery results = datastore.prepare(query);
     ArrayList<String> stringList = new ArrayList<String>();
+    int numComment = Integer.parseInt(getParameterWithDefault(request, "numComment", "0"));
 
-    for (Entity entity : results.asIterable()) {
-      if (numComment == 0) {
-        break;
-      }
-      String comment = (String)entity.getProperty("content");
+    for (final Entity entity : results.asIterable(FetchOptions.Builder.withLimit(numComment))) {
+      String comment = (String) entity.getProperty("content");
       stringList.add(comment);
-      --numComment;
     }
 
     response.setContentType("application/json;");
     response.getWriter().println(GSON.toJson(stringList));
+    response.sendRedirect("index.html");
   }
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form
     String text = getParameterWithDefault(request, "comment", "");
-    numComment = Integer.parseInt(request.getParameter("numComment"));
     Entity commentEntity = new Entity("Comment");
     commentEntity.setProperty("content", text);
     datastore.put(commentEntity);
+    
     response.sendRedirect("index.html");
   }
 

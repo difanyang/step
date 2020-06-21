@@ -30,20 +30,21 @@ function addRandomFacts() {
 /** Fetches comments from the servers and adds them to the DOM. */
 function getData() {
   fetch('/data').then(response => response.json()).then((data) => {
-    
     const arrayListElement = document.getElementById('data-container');
     arrayListElement.innerHTML = '';
-    arrayListElement.appendChild(createTextElement(data));
+    data.forEach((comment) => {
+      arrayListElement.appendChild(createListElement(comment));
+    });
   });
 }
 
-/** Creates an <p> element containing text. */
-function createTextElement(text) {
-  const pElement = document.createElement('p');
-  pElement.innerText = text;
-  return pElement;
+/** Creates an <li> element containing text. */
+function createListElement(text) {
+  const liElement = document.createElement('li');
+  liElement.innerText = text;
+  return liElement;
 }
 
 function deleteData(){
-  fetch('/delete-data').then(response => getData());
+  fetch('/delete-data');
 }
