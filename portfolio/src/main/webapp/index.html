@@ -16,6 +16,16 @@
     <div id="name">
       <h1>Difan Yang</h1>
     </div>
+    <form action="/data" method="POST">
+      <p>Leave a comment:</p>
+      <textarea name="comment">Leave your comment here.</textarea>
+      </br></br>
+      <label for="numComment">Number of comments to display:</label>
+      <input type="number" id="numComment" name="numComment">
+
+      <input type="submit" />
+    </form>
+    <button onclick="deleteData()">Delete all comments</button>
     <div id="data-container"></div>
   </body>
 </html>
