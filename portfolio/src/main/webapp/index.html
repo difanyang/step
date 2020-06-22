@@ -23,14 +23,10 @@
       <input type="submit" />
       </br></br>
     </form>
-    <form action="/data" method="GET">
-      <label for="numComment">Number of comments to display:</label>
-      <input type="number" name="numComment" value="1">
-      </br></br>
-      <input type="submit" />
-      </br></br>
-    </form>
+    <label for="numComment">Number of comments to display:</label>
+    <input type="number" name="numComment" id="numComment" value="0">
+    <button onclick="getData()">Display comments</button>
     <button onclick="deleteData()">Delete all comments</button>
-    <ul id="data-container"></ul>
+    <div id="comments-container"></div>
   </body>
 </html>

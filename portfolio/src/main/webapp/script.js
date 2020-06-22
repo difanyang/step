@@ -29,12 +29,10 @@ function addRandomFacts() {
 
 /** Fetches comments from the servers and adds them to the DOM. */
 function getData() {
-  fetch('/data').then(response => response.json()).then((data) => {
-    const arrayListElement = document.getElementById('data-container');
+  fetch('/data?numComment='+document.getElementById("numComment").value).then(response => response.json()).then((data) => {
+    const arrayListElement = document.getElementById('comments-container');
     arrayListElement.innerHTML = '';
-    data.forEach((comment) => {
-      arrayListElement.appendChild(createListElement(comment));
-    });
+    arrayListElement.appendChild(createListElement(data));
   });
 }
 
@@ -46,5 +44,5 @@ function createListElement(text) {
 }
 
 function deleteData(){
-  fetch('/delete-data');
+  fetch('/delete-data', {method: 'post'});
 }

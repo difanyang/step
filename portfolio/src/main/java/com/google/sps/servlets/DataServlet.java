@@ -49,17 +49,17 @@ public class DataServlet extends HttpServlet {
 
     response.setContentType("application/json;");
     response.getWriter().println(GSON.toJson(stringList));
-    response.sendRedirect("index.html");
   }
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form
     String text = getParameterWithDefault(request, "comment", "");
-    Entity commentEntity = new Entity("Comment");
-    commentEntity.setProperty("content", text);
-    datastore.put(commentEntity);
-    
+    if (text != ""){
+      Entity commentEntity = new Entity("Comment");
+      commentEntity.setProperty("content", text);
+      datastore.put(commentEntity);
+    }
     response.sendRedirect("index.html");
   }
 

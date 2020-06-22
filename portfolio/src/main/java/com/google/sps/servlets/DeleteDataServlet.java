@@ -17,16 +17,15 @@ import javax.servlet.http.HttpServletResponse;
 /** Servlet responsible for deleting comments. */
 @WebServlet("/delete-data")
 public class DeleteDataServlet extends HttpServlet {
+  private static final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query("Comment");
-    PreparedQuery results = datastore.prepare(query);
+    PreparedQuery results = datastore.prepare(query.setKeysOnly());
 
     for (Entity entity : results.asIterable()) {
-      Key key = entity.getKey();
-      datastore.delete(key);
+      datastore.delete(entity.getKey());
     }
   }
 }
