@@ -54,7 +54,7 @@ public class DataServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form
     String text = getParameterWithDefault(request, "comment", "");
-    if (!text.empty()){
+    if (!text.isEmpty()){
       Entity commentEntity = new Entity("Comment");
       commentEntity.setProperty("content", text);
       DATASTORE.put(commentEntity);

@@ -29,8 +29,8 @@ function addRandomFacts() {
 
 /** Fetches comments from the servers and adds them to the DOM. */
 function getData() {
-  fetch('/data?numComment='+document.getElementById("numComment").value).then(response
-   => response.json()).then((data) => {
+  fetch('/data?numComment='+document.getElementById("numComment").value).
+      then(response => response.json()).then((data) => {
     const arrayListElement = document.getElementById('comments-container');
     arrayListElement.innerHTML = '';
     arrayListElement.appendChild(createListElement(data));
