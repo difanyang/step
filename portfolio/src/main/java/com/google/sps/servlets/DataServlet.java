@@ -33,18 +33,17 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
   private static final Gson GSON = new Gson();
-  private static final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+  private static final DatastoreService DATASTORE = DatastoreServiceFactory.getDatastoreService();
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     Query query = new Query("Comment");
-    PreparedQuery results = datastore.prepare(query);
+    PreparedQuery results = DATASTORE.prepare(query);
     ArrayList<String> stringList = new ArrayList<String>();
     int numComment = Integer.parseInt(getParameterWithDefault(request, "numComment", "0"));
 
     for (final Entity entity : results.asIterable(FetchOptions.Builder.withLimit(numComment))) {
-      String comment = (String) entity.getProperty("content");
-      stringList.add(comment);
+      stringList.add((String) entity.getProperty("content"));
     }
 
     response.setContentType("application/json;");
@@ -55,10 +54,10 @@ public class DataServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form
     String text = getParameterWithDefault(request, "comment", "");
-    if (text != ""){
+    if (!text.empty()){
       Entity commentEntity = new Entity("Comment");
       commentEntity.setProperty("content", text);
-      datastore.put(commentEntity);
+      DATASTORE.put(commentEntity);
     }
     response.sendRedirect("index.html");
   }
