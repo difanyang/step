@@ -14,19 +14,63 @@
 
 package com.google.sps.servlets;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.FetchOptions;
 import java.io.IOException;
+import java.util.ArrayList;
+import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Servlet that returns some example content. TODO: modify this file to handle comments data */
+/** Servlet that returns user comments. TODO: modify this file to handle comments data */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
+  private static final Gson GSON = new Gson();
+  private static final DatastoreService DATASTORE = DatastoreServiceFactory.getDatastoreService();
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    response.setContentType("text/html;");
-    response.getWriter().println("Hello Difan Yang!");
+    Query query = new Query("Comment");
+    PreparedQuery results = DATASTORE.prepare(query);
+    ArrayList<String> stringList = new ArrayList<String>();
+    int numComment = Integer.parseInt(getParameterWithDefault(request, "numComment", "0"));
+
+    for (final Entity entity : results.asIterable(FetchOptions.Builder.withLimit(numComment))) {
+      stringList.add((String) entity.getProperty("content"));
+    }
+
+    response.setContentType("application/json;");
+    response.getWriter().println(GSON.toJson(stringList));
+  }
+
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // Get the input from the form
+    String text = getParameterWithDefault(request, "comment", "");
+    if (!text.isEmpty()){
+      Entity commentEntity = new Entity("Comment");
+      commentEntity.setProperty("content", text);
+      DATASTORE.put(commentEntity);
+    }
+    response.sendRedirect("index.html");
+  }
+
+  /**
+   * @return the request parameter, or the default value if the parameter
+   *         was not specified by the client
+   */
+  private String getParameterWithDefault(HttpServletRequest request, String name, String defaultValue) {
+    String value = request.getParameter(name);
+    if (value == null) {
+      return defaultValue;
+    }
+    return value;
   }
 }
