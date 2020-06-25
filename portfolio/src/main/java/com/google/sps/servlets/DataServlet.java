@@ -49,6 +49,7 @@ public class DataServlet extends HttpServlet {
   private static final Gson GSON = new Gson();
   private static final DatastoreService DATASTORE = DatastoreServiceFactory.getDatastoreService();
   private static final BlobstoreService BLOBSTORE = BlobstoreServiceFactory.getBlobstoreService();
+  private static final ImagesService IMAGESERVICE = ImagesServiceFactory.getImagesService();
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -59,7 +60,7 @@ public class DataServlet extends HttpServlet {
 
     for (final Entity entity : results.asIterable(FetchOptions.Builder.withLimit(numComment))) {
       inputList.add(new Input((String)entity.getProperty("comment"),
-      (String)entity.getProperty("imageUrl")));
+                              (String)entity.getProperty("imageUrl")));
     }
 
     response.setContentType("application/json;");
@@ -122,16 +123,15 @@ public class DataServlet extends HttpServlet {
     }
 
     // Use ImagesService to get a URL that points to the uploaded file.
-    ImagesService imagesService = ImagesServiceFactory.getImagesService();
     ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
 
     // To support running in Google Cloud Shell with AppEngine's devserver, we must use the relative
     // path to the image, rather than the path returned by imagesService which contains a host.
     try {
-      URL url = new URL(imagesService.getServingUrl(options));
+      URL url = new URL(IMAGESERVICE.getServingUrl(options));
       return url.getPath();
     } catch (MalformedURLException e) {
-      return imagesService.getServingUrl(options);
+      return IMAGESERVICE.getServingUrl(options);
     }
   }
 }
