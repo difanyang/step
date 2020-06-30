@@ -23,69 +23,62 @@ import java.util.List;
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
     Collection<TimeRange> spots = new ArrayList<TimeRange>();
-    ArrayList<String> attendees = new ArrayList<String>(request.getAttendees());
     ArrayList<Event> eventsList = new ArrayList<Event>(events);
-    long duration = request.getDuration();
-    if (duration > TimeRange.WHOLE_DAY.duration()) {
+    long meetingDuration = request.getDuration();
+
+    if (meetingDuration > TimeRange.WHOLE_DAY.duration()) {
       return spots;
     }
     
-    if (eventsList.isEmpty() || attendees.isEmpty()) {
+    if (eventsList.isEmpty() || request.getAttendees().isEmpty()) {
       return Arrays.asList(TimeRange.WHOLE_DAY);
     }
 
-    /** Sorts the events list by start time. */
+    /** Deletes irrelevant events. */
+    eventsList.removeIf(event -> Collections.disjoint(request.getAttendees(), 
+                                                      event.getAttendees()));
+
     boolean sorted = true;
     do {
-      for (int i = 0; i < eventsList.size() - 1; i++) {
-        if (TimeRange.ORDER_BY_START
-            .compare(eventsList.get(i).getWhen(), eventsList.get(i+1).getWhen()) > 0) {
-          Event tmp = eventsList.get(i);
-          eventsList.set(i, eventsList.get(i+1));
-          eventsList.set(i+1, tmp);
+      int currentEvent = 0;
+
+      /** Loops through the events list. */
+      while (currentEvent < eventsList.size() - 1) {
+
+        /** Sorts the events list by start time. */
+        if (TimeRange.ORDER_BY_START.compare(eventsList.get(currentEvent).getWhen(), 
+              eventsList.get(currentEvent+1).getWhen()) > 0) {
+          Event tmp = eventsList.get(currentEvent);
+          eventsList.set(currentEvent, eventsList.get(currentEvent+1));
+          eventsList.set(currentEvent+1, tmp);
           sorted = false;
+          currentEvent++;
+        }
+
+        /** Deletes the next event if contained by the current event. */
+        else if (TimeRange.ORDER_BY_END.compare(eventsList.get(currentEvent).getWhen(), 
+              eventsList.get(currentEvent+1).getWhen()) > 0) {
+        eventsList.remove(currentEvent+1);
+        }
+
+        else {
+          currentEvent++;
         }
       }
     } while (!sorted);
-
-    /** Deletes irrelevant events and events contained by other events. */
-    for (int i = 0; i < eventsList.size(); i++) {
-      boolean relevant = false;
-      int j = 0;
-      while (j < attendees.size() && (!relevant)) {
-        if (eventsList.get(i).getAttendees().contains(attendees.get(j))) {
-          relevant = true;
-        }
-        j++;
-      }
-      if (!relevant) {
-        eventsList.remove(i);
-        i--;
-      } else if ((i < eventsList.size() - 1) && 
-                 (eventsList.get(i).getWhen().contains(eventsList.get(i+1).getWhen()))) {
-        eventsList.remove(i+1);
-        i--;
-      }
-    }
-
-    if (eventsList.isEmpty()) {
-      return Arrays.asList(TimeRange.WHOLE_DAY);
-    }
     
     int start = TimeRange.START_OF_DAY;
-    int end = eventsList.get(0).getWhen().start();
-    int spotDuration = end - start;
     for (int i = 0; i < eventsList.size(); i++) {
-      if (spotDuration >= duration) {
+      int end = eventsList.get(i).getWhen().start();
+      int spotDuration = end - start;
+      if (spotDuration >= meetingDuration) {
         spots.add(TimeRange.fromStartEnd(start, end, false));
       }
       start = eventsList.get(i).getWhen().end();
-      end = (i == eventsList.size() - 1) ? TimeRange.END_OF_DAY : eventsList.get(i+1).getWhen().start();
-      spotDuration = end - start;
     }
     // From the end of the last event to the end of day
-    if (spotDuration >= duration) {
-      spots.add(TimeRange.fromStartEnd(start, end, true));
+    if (TimeRange.END_OF_DAY - start >= meetingDuration) {
+      spots.add(TimeRange.fromStartEnd(start, TimeRange.END_OF_DAY, true));
     }
 
     return spots;
