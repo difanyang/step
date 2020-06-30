@@ -45,26 +45,14 @@ public final class FindMeetingQuery {
         return TimeRange.ORDER_BY_START.compare(a.getWhen(), b.getWhen());
       }
     });
-
-    /** Loops through the events list. */
-    int currentEvent = 0;
-    while (currentEvent < eventsList.size() - 1) {    
-      if (TimeRange.ORDER_BY_END.compare(eventsList.get(currentEvent).getWhen(), 
-            eventsList.get(currentEvent+1).getWhen()) > 0) {
-        /** Deletes the next event if contained by the current event. */
-        eventsList.remove(currentEvent+1);
-      } else {
-        currentEvent++;
-      }
-    }
     
     int start = TimeRange.START_OF_DAY;
-    for (int i = 0; i < eventsList.size(); i++) {
-      int end = eventsList.get(i).getWhen().start();
+    for (int currentEvent = 0; currentEvent < eventsList.size(); currentEvent++) {
+      int end = eventsList.get(currentEvent).getWhen().start();
       if (end - start >= meetingDuration) {
         spots.add(TimeRange.fromStartEnd(start, end, false));
       }
-      start = eventsList.get(i).getWhen().end();
+      start = Math.max(start, eventsList.get(currentEvent).getWhen().end());
     }
     // From the end of the last event to the end of day
     if (TimeRange.END_OF_DAY - start >= meetingDuration) {
