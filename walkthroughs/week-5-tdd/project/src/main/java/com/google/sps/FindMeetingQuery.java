@@ -23,16 +23,15 @@ import java.util.List;
 
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    Collection<TimeRange> spots = new ArrayList<TimeRange>();
     ArrayList<Event> eventsList = new ArrayList<Event>(events);
     long meetingDuration = request.getDuration();
 
     if (meetingDuration > TimeRange.WHOLE_DAY.duration()) {
-      return spots;
+      return Arrays.asList();
     }
 
-    eventsList.removeIf(event -> 
-        (Collections.disjoint(request.getAttendees(), event.getAttendees()) &&
+    eventsList.removeIf(event -> (
+         Collections.disjoint(request.getAttendees(), event.getAttendees()) &&
          Collections.disjoint(request.getOptionalAttendees(), event.getAttendees())));
 
     if (eventsList.isEmpty()) {
@@ -47,20 +46,20 @@ public final class FindMeetingQuery {
     });
     
     if (request.getAttendees().isEmpty() || request.getOptionalAttendees().isEmpty()) {
-      return (Collection<TimeRange>)findMeetingSpots(eventsList, meetingDuration);
+      return findMeetingSpots(eventsList, meetingDuration);
     }
 
-    spots = findMeetingSpots(eventsList, meetingDuration);
+    Collection<TimeRange> spots = findMeetingSpots(eventsList, meetingDuration);
     if (spots.isEmpty()) {
       /** When there are no meeting spots for both mandatory and optional attendees. */
-      eventsList.removeIf(event -> 
-          Collections.disjoint(request.getAttendees(), event.getAttendees()));
-      return (Collection<TimeRange>)findMeetingSpots(eventsList, meetingDuration);
+      eventsList.removeIf(event -> Collections.disjoint(request.getAttendees(), 
+                                                        event.getAttendees()));
+      return findMeetingSpots(eventsList, meetingDuration);
     }
     return spots;  
   }
 
-  private ArrayList<TimeRange> findMeetingSpots (ArrayList<Event> eventsList, long meetingDuration) {
+  private ArrayList<TimeRange> findMeetingSpots(ArrayList<Event> eventsList, long meetingDuration) {
     ArrayList<TimeRange> spots = new ArrayList<TimeRange>();
     int start = TimeRange.START_OF_DAY;
 
