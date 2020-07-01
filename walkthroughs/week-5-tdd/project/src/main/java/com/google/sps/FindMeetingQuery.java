@@ -31,14 +31,14 @@ public final class FindMeetingQuery {
       return spots;
     }
 
-    /** Deletes irrelevant events. */
-    eventsList.removeIf(event -> Collections.disjoint(request.getAttendees(), 
-                                                      event.getAttendees()));
+    eventsList.removeIf(event -> 
+        (Collections.disjoint(request.getAttendees(), event.getAttendees()) &&
+         Collections.disjoint(request.getOptionalAttendees(), event.getAttendees())));
 
-    if (eventsList.isEmpty() || request.getAttendees().isEmpty()) {
+    if (eventsList.isEmpty()) {
       return Arrays.asList(TimeRange.WHOLE_DAY);
     }
-    
+
     /** Sorts the events list by start time. */
     Collections.sort(eventsList, new Comparator<Event>(){
       public int compare(Event a, Event b) {
@@ -46,7 +46,24 @@ public final class FindMeetingQuery {
       }
     });
     
+    if (request.getAttendees().isEmpty() || request.getOptionalAttendees().isEmpty()) {
+      return (Collection<TimeRange>)findMeetingSpots(eventsList, meetingDuration);
+    }
+
+    spots = findMeetingSpots(eventsList, meetingDuration);
+    if (spots.isEmpty()) {
+      /** When there are no meeting spots for both mandatory and optional attendees. */
+      eventsList.removeIf(event -> 
+          Collections.disjoint(request.getAttendees(), event.getAttendees()));
+      return (Collection<TimeRange>)findMeetingSpots(eventsList, meetingDuration);
+    }
+    return spots;  
+  }
+
+  private ArrayList<TimeRange> findMeetingSpots (ArrayList<Event> eventsList, long meetingDuration) {
+    ArrayList<TimeRange> spots = new ArrayList<TimeRange>();
     int start = TimeRange.START_OF_DAY;
+
     for (int currentEvent = 0; currentEvent < eventsList.size(); currentEvent++) {
       int end = eventsList.get(currentEvent).getWhen().start();
       if (end - start >= meetingDuration) {
@@ -58,7 +75,6 @@ public final class FindMeetingQuery {
     if (TimeRange.END_OF_DAY - start >= meetingDuration) {
       spots.add(TimeRange.fromStartEnd(start, TimeRange.END_OF_DAY, true));
     }
-
     return spots;
   }
 }
