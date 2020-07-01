@@ -45,6 +45,8 @@ public final class FindMeetingQuery {
       }
     });
     
+    /** The request contains either the required attendees or the optional attendees 
+        and we only need to find once since the other is empty.*/
     if (request.getAttendees().isEmpty() || request.getOptionalAttendees().isEmpty()) {
       return findMeetingSpots(eventsList, meetingDuration);
     }
