@@ -29,34 +29,48 @@ function addRandomFacts() {
 
 /** Fetches comments from the servers and adds them to the DOM. 
     Gets the Blobstore upload URL from the server. */
-function getData() {
-  fetch('/data?numComment='+document.getElementById("numComment").value).
-      then(response => response.json()).then((data) => {
-    const arrayListElement = document.getElementById('comments-container');
-    arrayListElement.innerHTML = '';
-    const numComment = document.getElementById("numComment").value;
-    for (i = 0; i < numComment; i++) {
-      arrayListElement.appendChild(createListElement(data[i].comment));
-    }
-    const imgElement = document.getElementById('uploadImg');
-    imgElement.src = data[0].imageUrl;
-  });
+function loadPage() {
+  getData();
+  fetchBlobstoreUrl();
+}
 
-  fetch('/blobstore-upload-url')
+function getData() {
+  const numComment = document.getElementById('numComment').value;
+  fetch('/data?numComment='+numComment)
+      .then(response => response.json()).then((data) => {
+        const arrayListElement = document.getElementById('inputs-container');
+        arrayListElement.innerHTML = '';
+        data.forEach((input) => {
+          arrayListElement.appendChild(createInputElement(input));
+        })
+  });
+}
+
+function fetchBlobstoreUrl() {
+  fetch('/my-blobstore-upload-url')
       .then((response) => {
         return response.text();
       })
       .then((imageUploadUrl) => {
-        const messageForm = document.getElementById('my-form');
+        const messageForm = document.getElementById('input-form');
         messageForm.action = imageUploadUrl;
       });
 }
 
-/** Creates an <li> element containing text. */
-function createListElement(text) {
-  const liElement = document.createElement('li');
-  liElement.innerText = text;
-  return liElement;
+/** Creates an element that represents a input. */
+function createInputElement(input) {
+  const inputElement = document.createElement('li');
+  inputElement.className = 'input';
+
+  const commentElement = document.createElement('span');
+  commentElement.innerText = input.comment;
+
+  const imgElement = document.createElement('img');
+  imgElement.src = input.imageUrl;
+
+  inputElement.appendChild(commentElement);
+  inputElement.appendChild(imgElement);
+  return inputElement;
 }
 
 /** Deletes all comments in DataStore. */

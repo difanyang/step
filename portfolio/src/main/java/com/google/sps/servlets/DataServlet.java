@@ -34,6 +34,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import com.google.gson.Gson;
+import com.google.sps.data.Input;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -43,7 +44,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Servlet that returns user comments. TODO: modify this file to handle comments data */
+/** Servlet that returns user comments. */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
   private static final Gson GSON = new Gson();
@@ -55,38 +56,34 @@ public class DataServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     Query query = new Query("Input");
     PreparedQuery results = DATASTORE.prepare(query);
-    ArrayList<Input> inputList = new ArrayList<Input>();
+    List<Input> inputList = new ArrayList<Input>();
     int numComment = Integer.parseInt(getParameterWithDefault(request, "numComment", "0"));
 
     for (final Entity entity : results.asIterable(FetchOptions.Builder.withLimit(numComment))) {
       inputList.add(new Input((String)entity.getProperty("comment"),
                               (String)entity.getProperty("imageUrl")));
     }
-
     response.setContentType("application/json;");
     response.getWriter().println(GSON.toJson(inputList));
   }
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Get the input from the form
+    // Get the comment from the form
     String text = getParameterWithDefault(request, "comment", "");
 
     // Get the URL of the image that the user uploaded to Blobstore.
     String imageUrl = getUploadedFileUrl(request, "image");
 
     Entity inputEntity = new Entity("Input");
-    // Store the URL in DataStore
     if (!imageUrl.isEmpty()) { 
       inputEntity.setProperty("imageUrl", imageUrl);
     }
-
-    // Store the comment in DataStore
     if (!text.isEmpty()) {
       inputEntity.setProperty("comment", text);
     }
     DATASTORE.put(inputEntity);
-    response.sendRedirect("index.html");
+    response.sendRedirect("/index.html");
   }
 
   /**
@@ -105,7 +102,7 @@ public class DataServlet extends HttpServlet {
   private String getUploadedFileUrl(HttpServletRequest request, String formInputElementName) {
     
     Map<String, List<BlobKey>> blobs = BLOBSTORE.getUploads(request);
-    List<BlobKey> blobKeys = blobs.get("image");
+    List<BlobKey> blobKeys = blobs.get(formInputElementName);
 
     // User submitted form without selecting a file, so we can't get a URL. (dev server)
     if (blobKeys == null || blobKeys.isEmpty()) {
