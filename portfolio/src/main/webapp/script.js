@@ -27,23 +27,53 @@ function addRandomFacts() {
   factContainer.innerText = fact;
 }
 
-/** Fetches comments from the servers and adds them to the DOM. */
+/** Fetches comments from the servers and adds them to the DOM. 
+    Gets the Blobstore upload URL from the server. */
+function loadPage() {
+  getData();
+  fetchBlobstoreUrl();
+}
+
 function getData() {
-  fetch('/data?numComment='+document.getElementById("numComment").value).
-      then(response => response.json()).then((data) => {
-    const arrayListElement = document.getElementById('comments-container');
-    arrayListElement.innerHTML = '';
-    arrayListElement.appendChild(createListElement(data));
+  const numComment = document.getElementById('numComment').value;
+  fetch('/data?numComment='+numComment)
+      .then(response => response.json()).then((data) => {
+        const arrayListElement = document.getElementById('inputs-container');
+        arrayListElement.innerHTML = '';
+        data.forEach((input) => {
+          arrayListElement.appendChild(createInputElement(input));
+        })
   });
 }
 
-/** Creates an <li> element containing text. */
-function createListElement(text) {
-  const liElement = document.createElement('li');
-  liElement.innerText = text;
-  return liElement;
+function fetchBlobstoreUrl() {
+  fetch('/my-blobstore-upload-url')
+      .then((response) => {
+        return response.text();
+      })
+      .then((imageUploadUrl) => {
+        const messageForm = document.getElementById('input-form');
+        messageForm.action = imageUploadUrl;
+      });
 }
 
+/** Creates an element that represents a input. */
+function createInputElement(input) {
+  const inputElement = document.createElement('li');
+  inputElement.className = 'input';
+
+  const commentElement = document.createElement('span');
+  commentElement.innerText = input.comment;
+
+  const imgElement = document.createElement('img');
+  imgElement.src = input.imageUrl;
+
+  inputElement.appendChild(commentElement);
+  inputElement.appendChild(imgElement);
+  return inputElement;
+}
+
+/** Deletes all comments in DataStore. */
 function deleteData(){
   fetch('/delete-data', {method: 'post'});
 }
