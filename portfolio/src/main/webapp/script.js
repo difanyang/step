@@ -32,6 +32,7 @@ function addRandomFacts() {
 function loadPage() {
   getData();
   fetchBlobstoreUrl();
+  getLoginStatus();
 }
 
 function getData() {
@@ -52,8 +53,23 @@ function fetchBlobstoreUrl() {
         return response.text();
       })
       .then((imageUploadUrl) => {
-        const messageForm = document.getElementById('input-form');
-        messageForm.action = imageUploadUrl;
+        const inputForm = document.getElementById('input-form');
+        inputForm.action = imageUploadUrl;
+      });
+}
+
+function getLoginStatus() {
+  fetch('/login-status')
+      .then((response) => {
+        return response.text();
+      })
+      .then((loginStatus) => {
+        if (!loginStatus === "Y") {
+          const inputForm = document.getElementById('input-form');
+          inputForm.style.display = "none";
+          const loginElement = document.getElementById('login');
+          loginElement.innerHTML = '<p>Login <a href=\"' + loginStatus + '\">here</a>.</p>'
+        }
       });
 }
 
@@ -62,12 +78,16 @@ function createInputElement(input) {
   const inputElement = document.createElement('li');
   inputElement.className = 'input';
 
+  const emailElement = document.createElement('span');
+  emailElement.innerText = input.email + ": ";
+
   const commentElement = document.createElement('span');
   commentElement.innerText = input.comment;
 
   const imgElement = document.createElement('img');
   imgElement.src = input.imageUrl;
-
+  
+  inputElement.appendChild(emailElement);
   inputElement.appendChild(commentElement);
   inputElement.appendChild(imgElement);
   return inputElement;

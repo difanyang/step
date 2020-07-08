@@ -5,9 +5,11 @@ public final class Input {
 
   private final String comment;
   private final String imageUrl;
+  private final String email;
 
-  public Input(String comment, String imageUrl) {
+  public Input(String comment, String imageUrl, String email) {
     this.comment = comment;
     this.imageUrl = imageUrl;
+    this.email = email;
   }
 }

@@ -31,6 +31,8 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import com.google.gson.Gson;
@@ -51,6 +53,7 @@ public class DataServlet extends HttpServlet {
   private static final DatastoreService DATASTORE = DatastoreServiceFactory.getDatastoreService();
   private static final BlobstoreService BLOBSTORE = BlobstoreServiceFactory.getBlobstoreService();
   private static final ImagesService IMAGESERVICE = ImagesServiceFactory.getImagesService();
+  private static final UserService USERSERVICE = UserServiceFactory.getUserService();
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -61,7 +64,8 @@ public class DataServlet extends HttpServlet {
 
     for (final Entity entity : results.asIterable(FetchOptions.Builder.withLimit(numComment))) {
       inputList.add(new Input((String)entity.getProperty("comment"),
-                              (String)entity.getProperty("imageUrl")));
+                              (String)entity.getProperty("imageUrl"),
+                              (String)entity.getProperty("email")));
     }
     response.setContentType("application/json;");
     response.getWriter().println(GSON.toJson(inputList));
@@ -82,6 +86,8 @@ public class DataServlet extends HttpServlet {
     if (!text.isEmpty()) {
       inputEntity.setProperty("comment", text);
     }
+    String email = USERSERVICE.getCurrentUser().getEmail();
+    inputEntity.setProperty("email", email);
     DATASTORE.put(inputEntity);
     response.sendRedirect("/index.html");
   }
